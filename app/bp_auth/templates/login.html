@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+    <h1 id="main_heading">{{ main_heading }}</h1>
+    <p>Login Page</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="container">
+    <h2>{{ main_heading }}</h2>
+    <div class="form-card">
+        <div class="form-card">
+        <form method="POST" action="{{ url_for('bp-auth.login') }}">
+            {{ form.hidden_tag() }}
+
+            <div class="floating-label">
+                {{ form.user_name(placeholder=" ") }}
+                {{ form.user_name.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.password(placeholder=" ") }}
+                {{ form.password.label }}
+            </div>
+
+            <div id="submit-container" style="position: relative;">
+                {{ form.submit(class="btn btn-success", id="submit") }}
+                <div id="spinner" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <div class="loader"></div>
+                </div>
+            </div> 
+        </form>
+    </div>
+</div>
+{% endblock right_col %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+    <h1 id="main_heading">Respond to Report</h1>
+    <p>Responding to report for appointment ID: {{ report.appointment_id }}</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="container">
+    <h2>Client Feedback</h2>
+    <div class="form-card" style="margin-bottom: 20px;">
+        <p><strong>Status:</strong> {{ form.status.data }}</p>
+        <p><strong>Client's Feedback:</strong></p>
+        <p style="background: #f2f2f2; padding: 10px; border-radius: 6px;">
+            {{ form.feedback_client.data }}
+        </p>
+    </div>
+
+    <h2>Write Your Response</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+    
+        <div class="floating-label">
+            {{ form.feedback_professional(class="form-input") }}
+            {{ form.feedback_professional.label }}
+        </div>
+    
+        <div class="floating-label" style="margin-top: 15px;">
+            {{ form.status(class="form-input") }}
+            {{ form.status.label }}
+        </div>
+    
+        <div style="margin-top: 20px;">
+            {{ form.submit(class="btn btn-success", value="Submit Response") }}
+        </div>
+    </form>
+    
+    {% if current_user.user_type == 'professional' and not report.flagged_by_professional %}
+        <form method="POST" action="{{ url_for('bp-report.flag_report', report_id=report.report_id) }}" style="margin-top: 15px;">
+            <input type="hidden" name="return_to" value="view_report">
+            <button type="submit" class="btn btn-danger">Flag Report</button>
+        </form>
+    {% endif %}
+
+    
+    
+    
+
+    <p style="margin-top: 20px;">
+        <a href="{{ url_for('bp-report.my_reports') }}" class="btn btn-secondary">← Back to My Reports</a>
+    </p>
+</div>
+{% endblock right_col %}

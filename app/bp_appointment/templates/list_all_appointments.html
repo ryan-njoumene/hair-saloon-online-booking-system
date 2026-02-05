@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block left_col %}
+<h1 id="main_heading">{{ main_heading }}</h1>
+
+<!-- 🔘 Toggle Filters Button -->
+<button class="toggle-filter-btn" onclick="toggleFilter()">🧊 Toggle Filters</button>
+
+<!-- 🎯 Filter Sidebar -->
+<aside class="filter-sidebar" id="filterSidebar">
+    <h2 class="filter-title"><i class="fa fa-filter"></i> Filters</h2>
+
+    <form method="GET" action="{{ url_for('bp-appointment.list_all_appointments') }}">
+        <section class="filter-group">
+            <h3>Status</h3>
+            <label>
+                <input type="radio" name="status" value="all" {% if status_filter == "all" %}checked{% endif %}>
+                <span>🌐 All</span>
+            </label>
+            <label>
+                <input type="radio" name="status" value="requested" {% if status_filter == "requested" %}checked{% endif %}>
+                <span>📥 Requested</span>
+            </label>
+            <label>
+                <input type="radio" name="status" value="approved" {% if status_filter == "approved" %}checked{% endif %}>
+                <span>✅ Accepted</span>
+            </label>
+            <label>
+                <input type="radio" name="status" value="cancelled" {% if status_filter == "cancelled" %}checked{% endif %}>
+                <span>❌ Cancelled</span>
+            </label>
+        </section>
+
+        <section class="filter-group">
+            <h3>Sort By</h3>
+            <label>
+                <input type="radio" name="sort" value="date" {% if sort_by == "date" %}checked{% endif %}>
+                <span>📅 Date</span>
+            </label>
+            <label>
+                <input type="radio" name="sort" value="slot" {% if sort_by == "slot" %}checked{% endif %}>
+                <span>⏰ Slot</span>
+            </label>
+            <label>
+                <input type="radio" name="sort" value="provider" {% if sort_by == "provider" %}checked{% endif %}>
+                <span>🧑‍💼 Provider</span>
+            </label>
+            <label>
+                <input type="radio" name="sort" value="consumer" {% if sort_by == "consumer" %}checked{% endif %}>
+                <span>👤 Consumer</span>
+            </label>
+        </section>
+
+        <button type="submit" class="filter-button">🔍 Apply Filters</button>
+    </form>
+</aside>
+{% endblock %}
+
+
+
+
+
+
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Appointment Overview</h2>
+
+    {% for appointment in appointments %}
+    <div class="appointment-card">
+        <ul class="info-list">
+            <li><span class="icon">✂️</span> <strong>Service:</strong> {{ appointment.service_name or 'N/A' }}</li>
+            <li><span class="icon">📅</span> <strong>Date:</strong> {{ appointment.date_appoint }}</li>
+            <li><span class="icon">⏰</span> <strong>Time Slot:</strong> {{ appointment.slot }}</li>
+            <li><span class="icon">📍</span> <strong>Venue:</strong> {{ appointment.venue or 'Not provided' }}</li>
+            <li><span class="icon">👤</span> <strong>Client:</strong> {{ appointment.consumer_name }}</li>
+            <li><span class="icon">🧑‍💼</span> <strong>Professional:</strong> {{ appointment.provider_name }}</li>
+            <li><span class="icon">ℹ️</span> <strong>Status:</strong> {{ appointment.status }}</li>
+        </ul>
+        <div class="btn-container">
+            <a href="{{ url_for('bp-appointment.view_appointment', appointment_id=appointment['appointment_id'], return_to='all') }}" class="btn-glow">
+                <i class="fa fa-eye"></i> View Details
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="pagination-container">
+        {% if current_page > 1 %}
+            <a class="pagination-btn" href="?page={{ current_page - 1 }}&status={{ status_filter }}&sort={{ sort_by }}">Previous</a>
+        {% endif %}
+        {% for page in range(1, total_pages + 1) %}
+            <a class="pagination-btn {% if page == current_page %}active{% endif %}"
+               href="?page={{ page }}&status={{ status_filter }}&sort={{ sort_by }}">{{ page }}</a>
+        {% endfor %}
+        {% if current_page < total_pages %}
+            <a class="pagination-btn" href="?page={{ current_page + 1 }}&status={{ status_filter }}&sort={{ sort_by }}">Next</a>
+        {% endif %}
+    </div>
+    
+</div>
+
+<script>
+    function toggleFilter() {
+        const sidebar = document.querySelector('.filter-sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
+    </script>
+    
+{% endblock %}

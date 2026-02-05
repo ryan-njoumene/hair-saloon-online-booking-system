@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">Admin Logs</h1>
+{% endblock %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Recent Admin Actions</h2>
+
+    <!-- Back Button -->
+    <div style="text-align: left; margin-bottom: 15px;">
+        <a href="{{ url_for('bp-admin.dashboard') }}" class="btn-back">← Back to Dashboard</a>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="admin-logs-table">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Performed By</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                    {% set action_text = log[0]|lower %}
+                    {% set performer = log[1]|lower %}
+
+                    <tr {% if 'delete' in action_text %}class="serious-action"{% endif %}>
+                        <td>
+                            {% if 'delete' in action_text %}
+                                ❌
+                            {% elif 'add' in action_text %}
+                                ➕
+                            {% elif 'update' in action_text or 'change' in action_text %}
+                                ✏️
+                            {% else %}
+                                🔹
+                            {% endif %}
+                            {{ log[0] }}
+                        </td>
+                        <td>
+                            {{ log[1] }}
+                            {% if 'super' in performer %}
+                                <span class="badge super">Super Admin</span>
+                            {% elif 'appoint' in performer %}
+                                <span class="badge appoint">Appointment Admin</span>
+                            {% elif 'user' in performer %}
+                                <span class="badge user">User Admin</span>
+                            {% else %}
+                                <span class="badge other">Staff</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ log[2]|datetimeformat }}</td>
+                    </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align:center;">No logs found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

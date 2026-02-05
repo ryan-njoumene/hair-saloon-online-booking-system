@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">{{ context["main_heading"] }}</h1>
+<p>Edit the details of this appointment.</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Edit Appointment</h2>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="floating-label">
+            {{ form.consumer_id(class="form-control") }}
+            {{ form.consumer_id.label }}
+        </div>
+
+        <div class="floating-label">
+            <select id="provider_id" name="provider_id" class="form-control">
+                {% for value, label in form.provider_id.choices %}
+                    {% set rate = pay_rates.get(value, 15.75) %}
+                    <option value="{{ value }}" data-payrate="{{ rate }}" {% if form.provider_id.data == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+            <label for="provider_id">Provider</label>
+        </div>
+
+        <div class="floating-label">
+            {{ form.date_appoint(class="form-control") }}
+            {{ form.date_appoint.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.slot(class="form-control", id="slot") }}
+            {{ form.slot.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.venue(class="form-control") }}
+            {{ form.venue.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.service_name(class="form-control") }}
+            {{ form.service_name.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.duration(class="form-control", id="duration") }}
+            {{ form.duration.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.nber_services(class="form-control", id="nb_services") }}
+            {{ form.nber_services.label }}
+        </div>
+
+        <div style="margin-top: 10px;">
+            <strong>Total Cost: <span id="total-cost">$0.00</span></strong>
+        </div>
+
+        {{ form.submit(class="btn-success") }}
+    </form>
+
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('bp-appointment.view_appointment', appointment_id=form.meta.appointment_id) }}" class="admin-action">← Back</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const durationInput = document.getElementById("duration");
+        const nbServicesInput = document.getElementById("nb_services");
+        const providerSelect = document.getElementById("provider_id");
+        const slotSelect = document.getElementById("slot");
+        const priceOutput = document.getElementById("total-cost");
+
+        nbServicesInput.value = 1;
+
+        function getStartHour(slotValue) {
+            const parts = slotValue.split("-");
+            return parseInt(parts[0]) || 9;
+        }
+
+        function updateDurationBounds() {
+            const slotValue = slotSelect?.value;
+            if (!slotValue) return;
+
+            const startHour = getStartHour(slotValue);
+            const maxEndHour = startHour < 12 ? 12 : 22;
+            const maxDuration = maxEndHour - startHour;
+
+            durationInput.min = 1;
+            durationInput.max = maxDuration;
+
+            let currentDuration = parseInt(durationInput.value) || 1;
+            if (currentDuration < 1) currentDuration = 1;
+            if (currentDuration > maxDuration) currentDuration = maxDuration;
+
+            durationInput.value = currentDuration;
+
+            // Adjust nb_services max accordingly
+            nbServicesInput.max = currentDuration;
+
+            let currentNb = parseInt(nbServicesInput.value) || 1;
+            if (currentNb > currentDuration) {
+                nbServicesInput.value = currentDuration;
+            } else if (currentNb < 1) {
+                nbServicesInput.value = 1;
+            }
+        }
+
+        function updatePrice() {
+            const selected = providerSelect.selectedOptions[0];
+            const rate = parseFloat(selected?.getAttribute("data-payrate")) || 15.75;
+            const duration = parseFloat(durationInput.value) || 0;
+            const total = rate * duration;
+            priceOutput.textContent = `$${total.toFixed(2)}`;
+        }
+
+        slotSelect.addEventListener("change", () => {
+            updateDurationBounds();
+            updatePrice();
+        });
+
+        durationInput.addEventListener("input", () => {
+            updateDurationBounds();
+            updatePrice();
+        });
+
+        nbServicesInput.addEventListener("input", updatePrice);
+        providerSelect.addEventListener("change", updatePrice);
+
+        updateDurationBounds();
+        updatePrice();
+    });
+</script>
+{% endblock right_col %}

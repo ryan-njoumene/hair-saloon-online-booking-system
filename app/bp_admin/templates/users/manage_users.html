@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<div style="text-align: left; margin-bottom: 15px;">
+    <a href="{{ url_for('bp-admin.dashboard') }}" class="btn-back">← Back to Dashboard</a>
+</div>
+<h1 id="main_heading">{{ context["main_heading"] }}</h1>
+<p>Admin user overview</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">
+
+    <!-- USERS LIST -->
+    <div class="form-card" style="flex: 1 1 45%; min-width: 300px;">
+        <h2 class="section-title">Current Users</h2>
+
+        <!-- FILTER BUTTONS BELOW TITLE -->
+        <div style="margin: 15px 0; text-align: center;">
+            <a href="{{ url_for('bp-admin.manage_users', type='clients') }}" class="btn-filter">Clients</a>
+            <a href="{{ url_for('bp-admin.manage_users', type='professionals') }}" class="btn-filter">Professionals</a>
+            <a href="{{ url_for('bp-admin.manage_users', type='warned') }}" class="btn-filter">Warned</a>
+            <a href="{{ url_for('bp-admin.manage_users', type='deactivated') }}" class="btn-filter">Deactivated</a>
+            {% if current_user.user_type == "admin_super" %}
+                <a href="{{ url_for('bp-admin.manage_users', type='admins') }}" class="btn-filter">Admins</a>
+            {% endif %}
+            <a href="{{ url_for('bp-admin.manage_users') }}" class="btn-filter">All</a>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr style="background-color: #2C3E50; color: white;">
+                    <th style="padding: 10px;">User ID</th>
+                    <th style="padding: 10px;">Username</th>
+                    <th style="padding: 10px;">User Type</th>
+                    <th style="padding: 10px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr style="text-align: center;"
+                    {% if user.warning_count > 0 and user.active == 1 %}
+                        class="warned-user"
+                    {% elif user.active == 0 %}
+                        class="deactivated-user"
+                    {% endif %}
+                    >
+
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ user.id }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ user.username }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ user.user_type | capitalize }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        <a href="{{ url_for('bp-admin.view_user', user_id=user.id, return_type=request.args.get('type', 'all')) }}" class="btn-success" style="padding: 6px 12px; color: white; text-decoration: none;">View Info</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ADD USER FORM (full registration form) -->
+    <div class="form-card" style="flex: 1 1 40%; min-width: 300px;">
+        <h2 class="section-title">Add New User</h2>
+        <form method="POST" action="{{ url_for('bp-admin.add_user') }}" enctype="multipart/form-data" id="addUserForm">
+            {{ form.hidden_tag() }}
+
+            <div class="floating-label">
+                {{ form.user_type(id="user_type", onchange="toggleFields()", placeholder=" ") }}
+                {{ form.user_type.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.user_name(placeholder=" ") }}
+                {{ form.user_name.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.fname(placeholder=" ") }}
+                {{ form.fname.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.lname(placeholder=" ") }}
+                {{ form.lname.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.email(placeholder=" ") }}
+                {{ form.email.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.password(placeholder=" ") }}
+                {{ form.password.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.confirm_password(placeholder=" ") }}
+                {{ form.confirm_password.label }}
+            </div>
+
+            <div id="common-fields">
+                <div class="floating-label">
+                    {{ form.phone_number(placeholder=" ") }}
+                    {{ form.phone_number.label }}
+                </div>
+                <div class="floating-label">
+                    {{ form.address(placeholder=" ") }}
+                    {{ form.address.label }}
+                </div>
+                <div class="floating-label">
+                    {{ form.age(placeholder=" ") }}
+                    {{ form.age.label }}
+                </div>
+            </div>
+
+            <div id="professional-fields" style="display: none;">
+                <div class="floating-label">
+                    {{ form.specialty(placeholder=" ") }}
+                    {{ form.specialty.label }}
+                </div>
+                <div class="floating-label">
+                    {{ form.pay_rate(placeholder=" ") }}
+                    {{ form.pay_rate.label }}
+                </div>
+            </div>
+
+            <div id="submit-container" style="position: relative;">
+                {{ form.submit(class="btn-success", id="submit", value="Add User") }}
+            </div>            
+        </form>
+    </div>
+
+</div>
+
+<script>
+    function toggleFields() {
+        var userType = document.getElementById("user_type").value;
+        var professionalFields = document.getElementById("professional-fields");
+
+        if (userType === "professional") {
+            professionalFields.style.display = "flex";
+            professionalFields.style.flexDirection = "column";
+            professionalFields.style.alignItems = "center";
+        } else {
+            professionalFields.style.display = "none";
+        }
+    }
+
+    window.onload = function() {
+        const usernameField = document.getElementById("user_name");
+        if (usernameField) {
+            usernameField.focus();
+        }
+    };
+
+    document.getElementById("addUserForm").addEventListener("submit", function(event) {
+        setTimeout(() => {
+            this.reset(); // Clear the form fields
+            toggleFields(); // Hide Professional fields if necessary
+
+            document.documentElement.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }, 100);
+    });
+</script>
+{% endblock right_col %}

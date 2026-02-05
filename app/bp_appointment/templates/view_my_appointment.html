@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">{{ main_heading }}</h1>
+<p>Details for appointment #{{ appointment["appointment_id"] }}</p>
+{% endblock %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Appointment Information</h2>
+
+    <ul style="list-style-type: none; padding: 0;">
+        <li><strong>Date:</strong> {{ appointment["date_appoint"] }}</li>
+        <li><strong>Time Slot:</strong> {{ appointment["slot"] }}</li>
+        <li><strong>Venue:</strong> {{ appointment["venue"] }}</li>
+        <li><strong>Client:</strong> {{ appointment["consumer_name"] }}</li>
+        <li><strong>Professional:</strong> {{ appointment["provider_name"] }}</li>
+        <li><strong>Service:</strong> {{ appointment["service_name"] }} ({{ appointment["service_duration"] }} hour{{ 's' if appointment["service_duration"]|int > 1 else '' }})</li>
+        <li><strong>Price:</strong> ${{ appointment["service_price"] }}</li>
+        <li><strong>Status:</strong> {{ appointment["status"]|capitalize }}</li>
+    </ul>
+
+    <div class="admin-controls-grid" style="justify-content: flex-start; gap: 10px; margin-top: 20px;">
+
+        {% if current_user.id == appointment['provider_id'] or current_user.id == appointment['consumer_id'] %}
+            <a href="{{ url_for('bp-appointment.modify_appointment', appointment_id=appointment['appointment_id']) }}" class="admin-action">Edit</a>
+        {% endif %}
+
+        {% if current_user.user_type in ['admin_user', 'admin_super'] %}
+            <!-- Admin can edit/delete -->
+            <a href="{{ url_for('bp-appointment.modify_appointment', appointment_id=appointment['appointment_id']) }}" class="admin-action">Edit</a>
+            <button class="admin-action admin-delete" onclick="showDeleteModal()">Delete</button>
+        {% endif %}
+
+        {% if current_user.id == appointment['provider_id'] and appointment['status'] == 'requested' %}
+            <form method="POST" action="{{ url_for('bp-appointment.accept_appointment', appointment_id=appointment['appointment_id']) }}" style="display:inline;">
+                <button type="submit" class="admin-action" style="background-color: #28a745;">Accept</button>
+            </form>
+            <form method="POST" action="{{ url_for('bp-appointment.cancel_appointment', appointment_id=appointment['appointment_id']) }}" style="display:inline;">
+                <button type="submit" class="admin-action" style="background-color: #dc3545;">Cancel</button>
+            </form>
+        {% elif current_user.id in [appointment['consumer_id'], appointment['provider_id']] %}
+            <!-- Regular user can only cancel -->
+            <form method="POST" action="{{ url_for('bp-appointment.cancel_appointment', appointment_id=appointment['appointment_id']) }}" style="display:inline;">
+                <button type="submit" class="admin-action" style="background-color: #dc3545;">Cancel</button>
+            </form>
+        {% endif %}
+
+        <a href="{% if request.args.get('return_to') == 'my' %}
+                {{ url_for('bp-appointment.my_appointments') }}
+            {% else %}
+                {{ url_for('bp-appointment.list_all_appointments') }}
+            {% endif %}" class="admin-action">← Back to Appointments</a>
+    </div>
+
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 style="color: #dc3545; font-weight: 700;">⚠️ Confirm Deletion</h2>
+        <p>Are you sure you want to delete this appointment?</p>
+        <ul style="list-style: none; padding: 0; text-align: left; font-size: 16px;">
+            <li><strong>Service:</strong> {{ appointment.service_name }}</li>
+            <li><strong>Date:</strong> {{ appointment.date_appoint }}</li>
+            <li><strong>Time Slot:</strong> {{ appointment.slot }}</li>
+            <li><strong>Provider:</strong> {{ appointment.provider_name }}</li>
+            <li><strong>Client:</strong> {{ appointment.consumer_name }}</li>
+        </ul>
+        <div style="margin-top: 25px; display: flex; justify-content: center; gap: 15px;">
+            <form method="POST" action="{{ url_for('bp-appointment.delete_appointment', appointment_id=appointment['appointment_id'], return_to=request.args.get('return_to', 'all')) }}">
+                <button type="submit" class="btn-glow delete-confirm" style="background-color: #d9534f;">Yes, Delete</button>
+            </form>
+            <button class="btn-glow delete-cancel" onclick="hideDeleteModal()" style="background-color: #6c757d;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function showDeleteModal() {
+    document.getElementById("deleteModal").style.display = "flex";
+    document.body.style.overflow = 'hidden';
+    }
+
+    function hideDeleteModal() {
+        document.getElementById("deleteModal").style.display = "none";
+        document.body.style.overflow = '';
+    }
+
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("deleteModal");
+        if (event.target === modal) {
+            hideDeleteModal();
+        }
+    };
+</script>
+
+{% endblock %}

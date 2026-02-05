@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">Admin Dashboard</h1>
+<p>Welcome, Admin {{ current_user.fname }}!</p>
+{% endblock %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Admin Controls</h2>
+
+    <div class="admin-controls-grid">
+        {% if current_user.user_type in ['admin_user', 'admin_super'] %}
+            <a href="{{ url_for('bp-admin.manage_users') }}" class="admin-control-btn users">👤 Manage Users</a>
+        {% endif %}
+        
+        {% if current_user.user_type in ['admin_appoint', 'admin_super'] %}
+            <a href="{{ url_for('bp-admin.manage_appointments') }}" class="admin-control-btn appointments">📅 Manage Appointments</a>
+            <a href="{{ url_for('bp-admin.manage_reports') }}" class="admin-control-btn reports">📝 Manage Reports</a>
+        {% endif %}
+
+        {% if current_user.user_type == 'admin_super' %}
+            <a href="{{ url_for('bp-admin.add_admin') }}" class="admin-control-btn add-admin">➕ Add New Admin</a>
+            <a href="{{ url_for('bp-admin.admin_logs') }}" class="admin-control-btn logs">📜 View Admin Logs</a>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
