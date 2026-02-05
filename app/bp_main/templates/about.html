@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">{{ context.main_heading }}</h1>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="container">
+    <h2 class="text-center">{{ context.page_title }}</h2>
+
+    <style>
+        .card {
+            transition: box-shadow 0.4s ease, transform 0.4s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+            transform: translateY(-6px);
+        }
+        
+        /* Profile image base styling */
+        .card img {
+            border-radius: 50%; /* already done */
+            object-fit: cover; /* already done */
+            border: 2px solid #ccc; /* <--- NEW: thin subtle border */
+            transition: transform 0.6s ease, border-color 0.4s ease;
+        }
+        
+        /* On hover, slightly zoom the image */
+        .card:hover img {
+            transform: scale(1.08);
+            border-color: #66c2ff; /* <--- NEW: border color gently changes on hover */
+        }
+        </style>
+        
+        
+        
+
+    {% for admin in context.super_admins %}
+    <div class="card" style="background-color: #e0f7fa; margin-bottom: 20px; padding: 20px; display: flex; align-items: center; border-radius: 10px;">
+        <div style="flex: 0 0 150px;">
+            {% if admin.user_image %}
+                <img src="{{ url_for('static', filename='uploads/' + image_path[admin.user_name] ) }}" alt="Profile Picture" width="150" height="150" style="border-radius: 50%; object-fit: cover;">
+            {% else %}
+                <img src="{{ url_for('static', filename='uploads/default.jpeg') }}" alt="Profile Picture" width="150" height="150" style="border-radius: 50%; object-fit: cover;">
+            {% endif %}
+        </div>
+        <div style="flex: 1; padding-left: 20px;">
+            <h4 style="margin-bottom: 10px;">{{ admin.fname }} {{ admin.lname }}</h4>
+            <p><strong>Student ID:</strong> {{ admin.id }}</p>
+            <p><strong>Short description about</strong> {{ admin.fname }}</p>
+        </div>
+    </div>    
+    {% endfor %}
+</div>
+{% endblock right_col %}

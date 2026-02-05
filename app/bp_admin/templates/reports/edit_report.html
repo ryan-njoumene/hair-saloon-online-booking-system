@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">{{ context["main_heading"] }}</h1>
+<p>Editing report #{{ report.id }} for appointment #{{ report.appointment_id }}</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Edit Report</h2>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="floating-label">
+            {{ form.status(class="form-control") }}
+            {{ form.status.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.client_feedback(class="form-control") }}
+            {{ form.client_feedback.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.professional_response(class="form-control") }}
+            {{ form.professional_response.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.date_report(class="form-control") }}
+            {{ form.date_report.label }}
+        </div>
+
+        {{ form.submit(class="btn-success") }}
+    </form>
+
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('bp-admin.view_report', report_id=report.id) }}" class="admin-action">← Back</a>
+    </div>
+</div>
+{% endblock right_col %}

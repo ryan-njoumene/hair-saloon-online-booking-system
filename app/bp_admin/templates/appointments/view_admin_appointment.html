@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">{{ context["main_heading"] }}</h1>
+<p>Full details of appointment #{{ appointment["appointment_id"] }}</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Appointment Info</h2>
+    <ul style="list-style: none; padding: 0;">
+        <li><strong>Status:</strong> {{ appointment["status"] }}</li>
+        <li><strong>Date:</strong> {{ appointment["date_appoint"]|datetimeformat('%Y-%m-%d') }}</li>
+        <li><strong>Slot:</strong> {{ appointment["slot"] }}</li>
+        <li><strong>Venue:</strong> {{ appointment["venue"] }}</li>
+        <li><strong>Consumer ID:</strong> {{ appointment["consumer_id"] }}</li>
+        <li><strong>Consumer Name:</strong> {{ appointment["consumer_name"] }}</li>
+        <li><strong>Provider ID:</strong> {{ appointment["provider_id"] }}</li>
+        <li><strong>Provider Name:</strong> {{ appointment["provider_name"] }}</li>
+        <li><strong>Number of Services:</strong> {{ appointment["nber_services"] }}</li>
+        <li><strong>Consumer Report:</strong> {{ appointment["consumer_report"] }}</li>
+        <li><strong>Provider Report:</strong> {{ appointment["provider_report"] }}</li>
+    </ul>
+
+    <div class="admin-controls-grid" style="justify-content: flex-start; gap: 10px;">
+        <a href="{{ url_for('bp-admin.manage_appointments', status=return_status) }}" class="btn-back">← Back to Appointments</a>
+        <a href="{{ url_for('bp-admin.edit_appointment', appt_id=appointment['appointment_id']) }}" class="admin-action">Edit</a>
+        <form method="POST" action="{{ url_for('bp-admin.delete_appointment', appt_id=appointment['appointment_id']) }}" onsubmit="return confirm('Are you sure you want to delete this appointment?');">
+            <button type="submit" class="admin-action admin-delete">Delete</button>
+        </form>
+    </div>
+</div>
+{% endblock right_col %}

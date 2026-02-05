@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<div class="filter-sidebar">
+  <h4 class="filter-title">Endpoints</h4>
+  <div id="api-nav">
+    <a onclick="showSection('users')">Users</a>
+    <a onclick="showSection('appointments')">Appointments</a>
+    <a onclick="showSection('reports')">Reports</a>
+    <a onclick="showSection('secret')">Secret</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block right_col %}
+<script src="{{ url_for('bp-api.static', filename='scripts/api_docs.js') }}"></script>
+
+<div class="form-card">
+  <h2 class="section-title">API Documentation</h2>
+  <p>This page documents all public API endpoints. Click a <strong>Try It</strong> button to make a real-time request.</p>
+
+  <!-- USERS -->
+  <div id="section-users">
+    <h3>/users</h3>
+    <ul class="info-list">
+      <li>
+        <strong>GET /users</strong><br>
+        <code class="endpoint-url" data-url="/api/users"></code>
+        <button class="btn-glow" onclick="fetchApi('/api/users')">Try It</button>
+      </li>
+      <li>
+        <strong>GET /users/&lt;user_id&gt;</strong><br>
+        <input type="number" id="user-id-input" placeholder="User ID" style="width:150px; padding:4px;">
+        <button class="btn-glow" onclick="fetchById('/api/users/', 'user-id-input')">Try It</button><br>
+        <code class="dynamic-url" id="user-url-preview"></code>
+      </li>
+    </ul>
+  </div>
+
+  <!-- APPOINTMENTS -->
+  <div id="section-appointments" style="display:none;">
+    <h3>/appointments</h3>
+    <ul class="info-list">
+      <li>
+        <strong>GET /appointments</strong><br>
+        <code class="endpoint-url" data-url="/api/appointments"></code>
+        <button class="btn-glow" onclick="fetchApi('/api/appointments')">Try It</button>
+      </li>
+      <li>
+        <strong>GET /appointments/&lt;appt_id&gt;</strong><br>
+        <input type="number" id="appt-id-input" placeholder="Appointment ID" style="width:150px; padding:4px;">
+        <button class="btn-glow" onclick="fetchById('/api/appointments/', 'appt-id-input')">Try It</button><br>
+        <code class="dynamic-url" id="appt-url-preview"></code>
+      </li>
+    </ul>
+  </div>
+
+  <!-- REPORTS -->
+  <div id="section-reports" style="display:none;">
+    <h3>/reports</h3>
+    <ul class="info-list">
+      <li>
+        <strong>GET /reports</strong><br>
+        <code class="endpoint-url" data-url="/api/reports"></code>
+        <button class="btn-glow" onclick="fetchApi('/api/reports')">Try It</button>
+      </li>
+      <li>
+        <strong>GET /reports/&lt;report_id&gt;</strong><br>
+        <input type="number" id="report-id-input" placeholder="Report ID" style="width:150px; padding:4px;">
+        <button class="btn-glow" onclick="fetchById('/api/reports/', 'report-id-input')">Try It</button><br>
+        <code class="dynamic-url" id="report-url-preview"></code>
+      </li>
+    </ul>
+  </div>
+
+  <!-- SECRET -->
+  <div id="section-secret" style="display:none;">
+    <h3>/secret</h3>
+    <ul class="info-list">
+      <li>
+        <strong>GET /secret</strong> (JWT protected)<br>
+        <code class="endpoint-url" data-url="/api/secret"></code>
+        <button class="btn-glow" onclick="fetchApi('/api/secret')">Try It</button>
+      </li>
+    </ul>
+  </div>
+
+  <div>
+    <h3 style="margin-top: 30px;">API Response</h3>
+    <pre id="api-result" style="background:#f8f8f8; padding:15px; border:1px solid #ccc; border-radius:10px; max-height:400px; overflow:auto;">Click a Try It button to fetch live data from this app.</pre>
+  </div>
+</div>
+{% endblock %}

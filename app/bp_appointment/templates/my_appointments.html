@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">My Appointments</h1>
+{% endblock %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Upcoming Appointments</h2>
+
+    {% if appointments %}
+        {% for appointment in appointments %}
+        <div class="info-card appointment-card
+        {% if appointment.status == 'accepted' %}accepted{% elif appointment.status == 'cancelled' %}cancelled{% endif %}">
+    
+                <div class="appointment-header">
+                    <h3>{{ appointment.service_name }}</h3>
+                    <span class="status-badge {{ appointment.status }}">{{ appointment.status|capitalize }}</span>
+
+                </div>
+            
+                <ul class="info-list">
+                    <li><i class="fa fa-calendar"></i> <strong>Date:</strong> {{ appointment.date_appoint }}</li>
+                    <li><i class="fa fa-clock"></i> <strong>Time Slot:</strong> {{ appointment.slot }}</li>
+                    {% if current_user.user_type == "client" %}
+                        <li><i class="fa fa-user"></i> <strong>Provider:</strong> {{ appointment.provider_name }}</li>
+                    {% elif current_user.user_type == "professional" %}
+                        <li><i class="fa fa-user"></i> <strong>Client:</strong> {{ appointment.consumer_name }}</li>
+                    {% endif %}
+                </ul>
+            
+                {% if appointment.can_write_report %}
+                    <form action="{{ url_for('bp-report.create_reports') }}" method="get" style="display: inline;">
+                        <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                        <button type="submit" class="btn-glow" style="background-color: #28a745;">
+                            <i class="fa fa-pen"></i> Write Report
+                        </button>
+                    </form>
+                {% endif %}
+            
+
+                <div class="btn-container">
+                    <a href="{{ url_for('bp-appointment.view_appointment', appointment_id=appointment.appointment_id, return_to='my') }}" class="btn-glow">
+                        <i class="fa fa-eye"></i> View Details
+                    </a>                    
+                </div>
+            </div>
+        
+        {% endfor %}
+    {% else %}
+        <p>No appointments found.</p>
+    {% endif %}
+
+    <div class="pagination-container">
+        <div class="pagination">
+            {% if current_page > 1 %}
+                <a href="?page={{ current_page - 1 }}" class="pagination-btn">« Prev</a>
+            {% endif %}
+            {% for page in range(1, total_pages + 1) %}
+                <a href="?page={{ page }}"
+                   class="pagination-btn {% if page == current_page %}active{% endif %}">{{ page }}</a>
+            {% endfor %}
+            {% if current_page < total_pages %}
+                <a href="?page={{ current_page + 1 }}" class="pagination-btn">Next »</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

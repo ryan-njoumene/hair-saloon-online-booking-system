@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">{{ main_heading }}</h1>
+<p id="welcome-text">Welcome, {{ user.fname }}!</p>
+<img src="{{ url_for('static', filename='uploads/' ~ user.user_image) }}" alt="Profile Picture" width="120" class="profile-pic">
+{% endblock %}
+
+{% block right_col %}
+<h2 class="section-title">Update Profile</h2> <!-- <-- Added Section Title -->
+
+<div class="form-card">
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        
+        <div class="floating-label">
+            {{ form.fname(placeholder=" ") }}
+            {{ form.fname.label }}
+        </div>
+        
+        <div class="floating-label">
+            {{ form.lname(placeholder=" ") }}
+            {{ form.lname.label }}
+        </div>
+        
+        <div class="floating-label">
+            {{ form.email(placeholder=" ") }}
+            {{ form.email.label }}
+        </div>
+        
+        <div class="floating-label">
+            {{ form.phone_number(placeholder=" ") }}
+            {{ form.phone_number.label }}
+        </div>
+        
+        <div class="floating-label">
+            {{ form.address(placeholder=" ") }}
+            {{ form.address.label }}
+        </div>
+        
+        <div class="floating-label">
+            {{ form.user_image }}
+            {{ form.user_image.label }}
+        </div>
+        
+        <div>
+            {{ form.submit(class="btn-success") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
