@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<div style="text-align: left; margin-bottom: 15px;">
+    <a href="{{ url_for('bp-admin.dashboard') }}" class="btn-back">← Back to Dashboard</a>
+</div>
+<h1 id="main_heading">{{ context["main_heading"] }}</h1>
+<p>Manage Appointments</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">
+    <!-- Appointments Table -->
+    <div class="form-card" style="flex: 2;">
+        <h2 class="section-title">Appointments</h2>
+        <!-- FILTER BUTTONS -->
+        <div style="margin: 15px 0; text-align: center;">
+            <a href="{{ url_for('bp-admin.manage_appointments', status='requested') }}" class="btn-filter {% if filter_status == 'requested' %}active{% endif %}">Requested</a>
+            <a href="{{ url_for('bp-admin.manage_appointments', status='accepted') }}" class="btn-filter {% if filter_status == 'accepted' %}active{% endif %}">Accepted</a>
+            <a href="{{ url_for('bp-admin.manage_appointments', status='cancelled') }}" class="btn-filter {% if filter_status == 'cancelled' %}active{% endif %}">Cancelled</a>
+            <a href="{{ url_for('bp-admin.manage_appointments', status='all') }}" class="btn-filter {% if filter_status == 'all' %}active{% endif %}">All</a>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr style="background-color: #2C3E50; color: white;">
+                    <th style="padding: 10px;">Client</th>
+                    <th style="padding: 10px;">Professional</th>
+                    <th style="padding: 10px;">Date</th>
+                    <th style="padding: 10px;">Status</th>
+                    <th style="padding: 10px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr style="text-align: center;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ appointment['consumer_name'] }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ appointment['provider_name'] }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ appointment['date_appoint'] }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ appointment['status'] }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        <a href="{{ url_for('bp-admin.view_admin_appointment', appt_id=appointment['appointment_id'], status=filter_status) }}"
+                           class="btn-success" style="padding: 6px 12px; color: white; text-decoration: none;">
+                            View Info
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            
+        </table>
+    </div>
+
+    <!-- Add Appointment Form -->
+    <div class="form-card" style="flex: 1;">
+        <h2 class="section-title">Create New Appointment</h2>
+        <form method="POST" action="{{ url_for('bp-admin.create_appointment') }}">
+            {{ form.hidden_tag() }}
+    
+            <div class="floating-label">
+                {{ form.venue(class="form-control") }}
+                {{ form.venue.label }}
+            </div>
+    
+            <div class="floating-label">
+                {{ form.date_appoint(class="form-control") }}
+                {{ form.date_appoint.label }}
+            </div>
+    
+            <div class="floating-label">
+                {{ form.slot(class="form-control", id="slot") }}
+                {{ form.slot.label }}
+            </div>
+    
+            <div class="form-group">
+                {{ form.provider_id.label }}
+                <select name="provider_id" id="provider_id" class="form-control">
+                    {% for value, label in form.provider_id.choices %}
+                        {% set rate = pay_rates.get(value, 15.75) %}
+                        <option value="{{ value }}" data-payrate="{{ rate }}"
+                            {% if value == form.provider_id.data %} selected {% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="floating-label">
+                {{ form.client_id(class="form-control") }}
+                {{ form.client_id.label }}
+            </div>
+    
+            <div class="floating-label">
+                {{ form.service(class="form-control") }}
+                {{ form.service.label }}
+            </div>
+    
+            <div class="floating-label">
+                {{ form.duration(class="form-control", id="duration", min=1) }}
+                {{ form.duration.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.nb_services(class="form-control", id="nb_services", min=1) }}
+                {{ form.nb_services.label }}
+            </div>                      
+            
+            <div style="margin-top: 10px;">
+                <strong>Total Cost: <span id="total-cost">$0.00</span></strong>
+            </div>
+
+            {{ form.submit(class="btn-success") }}
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const durationInput = document.getElementById("duration");
+        const nbServicesInput = document.getElementById("nb_services");
+        const providerSelect = document.getElementById("provider_id");
+        const slotSelect = document.getElementById("slot");
+        const priceOutput = document.getElementById("total-cost");
+
+        nbServicesInput.value = 1;
+    
+        function getStartHour(slotValue) {
+            const parts = slotValue.split("-");
+            return parseInt(parts[0]) || 9;
+        }
+    
+        function updateDurationBounds() {
+            const slotValue = slotSelect?.value;
+            if (!slotValue) return;
+    
+            const startHour = getStartHour(slotValue);
+            const maxEndHour = startHour < 12 ? 12 : 22;
+            const maxDuration = maxEndHour - startHour;
+    
+            durationInput.min = 1;
+            durationInput.max = maxDuration;
+    
+            let currentDuration = parseInt(durationInput.value) || 1;
+            if (currentDuration < 1) currentDuration = 1;
+            if (currentDuration > maxDuration) currentDuration = maxDuration;
+    
+            durationInput.value = currentDuration;
+    
+            // Adjust nb_services max accordingly
+            nbServicesInput.max = currentDuration;
+    
+            // If current nb_services exceeds new duration, adjust it
+            let currentNb = parseInt(nbServicesInput.value) || 1;
+            if (currentNb > currentDuration) {
+                nbServicesInput.value = currentDuration;
+            } else if (currentNb < 1) {
+                nbServicesInput.value = 1;
+            }
+        }
+    
+        function updatePrice() {
+            const selected = providerSelect.selectedOptions[0];
+            const rate = parseFloat(selected?.getAttribute("data-payrate")) || 15.75;
+            const duration = parseFloat(durationInput.value) || 0;
+            const services = parseInt(nbServicesInput.value) || 1;
+            const total = rate * duration;
+            priceOutput.textContent = `$${total.toFixed(2)}`;
+        }
+    
+        slotSelect.addEventListener("change", () => {
+            updateDurationBounds();
+            updatePrice();
+        });
+    
+        durationInput.addEventListener("input", () => {
+            updateDurationBounds();
+            updatePrice();
+        });
+    
+        nbServicesInput.addEventListener("input", updatePrice);
+        providerSelect.addEventListener("change", updatePrice);
+    
+        // Initialize on load
+        updateDurationBounds();
+        updatePrice();
+    });
+    </script>
+    
+    
+{% endblock right_col %}

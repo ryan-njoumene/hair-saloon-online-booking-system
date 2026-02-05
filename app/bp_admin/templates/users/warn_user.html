@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">Warn {{ user[5] }} {{ user[6] }}</h1>
+<p>Send a warning message to this user. It will be shown the next time they log in.</p>
+{% endblock %}
+
+{% block right_col %}
+<div class="form-card">
+    <form method="POST">
+        <textarea name="warning_text" rows="5" style="width: 100%;" placeholder="Enter warning message..."></textarea>
+        <br><br>
+        <button type="submit" class="btn-success">Send Warning</button>
+    </form>
+    <a href="{{ url_for('bp-admin.view_user', user_id=user[0]) }}" class="btn-back" style="margin-top: 20px;">← Back to User</a>
+</div>
+{% endblock %}

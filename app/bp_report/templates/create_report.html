@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">{{ main_heading }}</h1>
+<p>Submit a new service report below.</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="form-card" style="max-width: 600px; margin: auto;">
+    <h2 class="section-title">Create New Report</h2>
+
+    <form method="POST" action="{{ url_for('bp-report.create_reports') }}">
+        {{ form.hidden_tag() }}
+
+        {% if locked_appointment_id %}
+            <div class="floating-label">
+                {{ form.appointment_id.label }}
+                {{ form.appointment_id(class="form-control", readonly=True, disabled=True) }}
+                <input type="hidden" name="appointment_id" value="{{ locked_appointment_id }}">
+            </div>
+        {% else %}
+            <div class="floating-label">
+                {{ form.appointment_id(class="form-control") }}
+                {{ form.appointment_id.label }}
+            </div>
+        {% endif %}
+
+        <div class="floating-label">
+            {{ form.feedback_client(class="form-control", rows=4) }}
+            {{ form.feedback_client.label }}
+        </div>
+
+        {% if current_user.user_type == "professional" %}
+            <div class="floating-label">
+                {{ form.feedback_professional(class="form-control", rows=4) }}
+                {{ form.feedback_professional.label }}
+            </div>
+        {% endif %}
+
+        <div style="margin-top: 20px;">
+            {{ form.submit(class="btn-success") }}
+        </div>
+    </form>
+
+    <div style="margin-top: 20px; text-align: center;">
+        <p>Want to see your previous reports?</p>
+        <a href="{{ url_for('bp-report.my_reports') }}" class="btn-glow">View My Reports</a>
+    </div>
+</div>
+{% endblock right_col %}

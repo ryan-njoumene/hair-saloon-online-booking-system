@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<div class="nav-back">
+    {% if return_to == 'my_reports' %}
+        <a href="{{ url_for('bp-report.my_reports') }}" class="btn-back">← Back to My Reports</a>
+    {% else %}
+        <a href="{{ url_for('bp-admin.dashboard') }}" class="btn-back">← Back to Admin Dashboard</a>
+    {% endif %}
+</div>
+<h1 id="main_heading">{{ main_heading }}</h1>
+{% endblock %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Report Details</h2>
+    <ul class="info-list">
+        <li><strong>Appointment ID:</strong> {{ report.appointment_id }}</li>
+        <li><strong>Status:</strong> {{ report.status|capitalize }}</li>
+        <li><strong>Provider Name:</strong> {{ report.provider_name }}</li>
+        <li><strong>Client Feedback:</strong> {{ report.feedback_client or "—" }}</li>
+        <li><strong>Professional Feedback:</strong> {{ report.feedback_professional or "—" }}</li>
+    </ul>
+    {% if current_user.user_type == 'professional' %}
+    {% if not report.flagged_by_professional %}
+        <form method="POST" action="{{ url_for('bp-report.flag_report', report_id=report.report_id) }}" style="margin-top: 15px;">
+            <input type="hidden" name="return_to" value="view_report">
+            <button type="submit" class="btn btn-danger">Flag Report</button>
+        </form>
+    {% else %}
+        <form method="POST" action="{{ url_for('bp-report.unflag_report', report_id=report.report_id) }}" style="margin-top: 15px;">
+            <input type="hidden" name="return_to" value="view_report">
+            <button type="submit" class="btn btn-secondary">Unflag Report</button>
+        </form>
+    {% endif %}
+{% endif %}
+
+
+
+</div>
+{% endblock %}

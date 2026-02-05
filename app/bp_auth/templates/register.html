@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+    <h1 id="main_heading">{{ main_heading }}</h1>
+    <p>Register Page</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="container">
+    <div class="form-card">
+        <h2>Register</h2>
+        <form method="POST" action="{{ url_for('bp-auth.register') }}">
+            {{ form.hidden_tag() }}
+        
+            <div class="floating-label">
+                {{ form.user_type(id="user_type", onchange="toggleFields()", placeholder=" ") }}
+                {{ form.user_type.label }}
+            </div>
+        
+            <div class="floating-label">
+                {{ form.user_name(placeholder=" ") }}
+                {{ form.user_name.label }}
+            </div>
+        
+            <div class="floating-label">
+                {{ form.fname(placeholder=" ") }}
+                {{ form.fname.label }}
+            </div>
+        
+            <div class="floating-label">
+                {{ form.lname(placeholder=" ") }}
+                {{ form.lname.label }}
+            </div>
+        
+            <div class="floating-label">
+                {{ form.email(placeholder=" ") }}
+                {{ form.email.label }}
+            </div>
+        
+            <div class="floating-label">
+                {{ form.password(placeholder=" ") }}
+                {{ form.password.label }}
+            </div>
+        
+            <div class="floating-label">
+                {{ form.confirm_password(placeholder=" ") }}
+                {{ form.confirm_password.label }}
+            </div>
+        
+            <div id="common-fields">
+                <div class="floating-label">
+                    {{ form.phone_number(placeholder=" ") }}
+                    {{ form.phone_number.label }}
+                </div>
+                <div class="floating-label">
+                    {{ form.address(placeholder=" ") }}
+                    {{ form.address.label }}
+                </div>
+                <div class="floating-label">
+                    {{ form.age(placeholder=" ") }}
+                    {{ form.age.label }}
+                </div>
+            </div>
+        
+            <div id="professional-fields" style="display: none;">
+                <div class="floating-label">
+                    {{ form.specialty(placeholder=" ") }}
+                    {{ form.specialty.label }}
+                </div>
+                <div class="floating-label">
+                    {{ form.pay_rate(placeholder=" ") }}
+                    {{ form.pay_rate.label }}
+                </div>
+            </div>
+        
+            <div id="submit-container" style="position: relative;">
+                {{ form.submit(class="btn btn-success", id="submit") }}
+                <div id="spinner" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </form>
+        
+    </div>
+
+    <p>Already have an account? <a href="{{ url_for('bp-auth.login') }}">Login here</a>.</p>
+</div>
+
+<script>
+    function toggleFields() {
+        var userType = document.getElementById("user_type").value;
+        var professionalFields = document.getElementById("professional-fields");
+    
+        if (userType === "professional") {
+            professionalFields.style.display = "flex";
+            professionalFields.style.flexDirection = "column";
+            professionalFields.style.alignItems = "center";
+        } else {
+            professionalFields.style.display = "none";
+        }
+    }
+    
+    // When page fully loads:
+    window.onload = function() {
+        // 1. Focus the first input/select automatically
+        const firstInput = document.querySelector('.floating-label input, .floating-label select');
+        if (firstInput) {
+            firstInput.focus();
+        }
+    
+        // 2. Set event listener for the submit button to show spinner
+        const submitButton = document.getElementById('submit');
+        const spinner = document.getElementById('spinner');
+        if (submitButton && spinner) {
+            submitButton.addEventListener('click', function() {
+                spinner.style.display = 'block';
+            });
+        }
+    };
+    </script>
+{% endblock right_col %}

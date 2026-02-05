@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">{{ context["main_heading"] }}</h1>
+<p>Details for report #{{ report[0] }}</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Report Information</h2>
+    <ul style="list-style: none; padding: 0;">
+        <li><strong>Appointment ID:</strong> {{ report.appointment_id }}</li>
+        <li><strong>Status:</strong> {{ report.status }}</li>
+        <li><strong>Client:</strong> {{ report.consumer_name }}</li>
+        <li><strong>Client Feedback:</strong> {{ report.feedback_client }}</li>
+        <li><strong>Professional:</strong> {{ report.provider_name }}</li>
+        <li><strong>Professional Response:</strong> {{ report.feedback_professional }}</li>
+        <li><strong>Date:</strong> {{ report.date|datetimeformat('%Y-%m-%d') }}</li>
+    </ul>       
+
+    <div class="admin-controls-grid" style="justify-content: flex-start; gap: 10px;">
+        <a href="{{ url_for('bp-admin.manage_reports') }}" class="admin-action">← Back</a>
+        <a href="{{ url_for('bp-admin.edit_report', report_id=report.id) }}" class="admin-action">Edit</a>
+
+        <form method="POST" action="{{ url_for('bp-admin.delete_report', report_id=report.id) }}" onsubmit="return confirm('Are you sure you want to delete this report?');">
+            <button type="submit" class="admin-action admin-delete">Delete</button>
+        </form>
+
+    </div>
+</div>
+{% endblock right_col %}

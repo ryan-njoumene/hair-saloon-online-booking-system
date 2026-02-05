@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="{{ url_for('bp-main.static', filename='styles/page.css') }}?v=2">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <script src="https://kit.fontawesome.com/a2e0d1f412.js" crossorigin="anonymous"></script>
+        <title>{{ page_title or "My Site" }}</title>
+
+    </head>
+
+    <body>
+
+        
+        <header>
+            <img id="logo" src="{{ url_for('bp-main.static', filename='images/logo.png') }}">
+
+            <section id="nav_wrap">
+                <div class="nav-container">
+                    <nav class="nav-links">
+                        <a href="{{ url_for('bp-main.home') }}">Home</a>
+                        <a href="{{ url_for('bp-main.about') }}">About</a>
+                        <a href="{{ url_for('bp-api.docs') }}">API Docs</a>
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.access_level >= 2 %}
+                                <a href="{{ url_for('bp-admin.dashboard') }}">Admin Dashboard</a>
+                            {% endif %}
+                            <a href="{{ url_for('bp-appointment.list_all_appointments')}}">All Appointments</a>
+                            <a href="{{ url_for('bp-appointment.my_appointments') }}">My Appointments</a>
+                            <a href="{{ url_for('bp-report.my_reports') }}">My Reports</a>
+                            <a href="{{ url_for('bp-appointment.create_appointment') }}">Create Appointment</a>
+                            <a href="{{ url_for('bp-auth.profile') }}">Profile</a>
+                            <a href="{{ url_for('bp-auth.manage_groupchat') }}">Messages</a>
+                            <a href="{{ url_for('bp-auth.logout') }}">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('bp-auth.login') }}">Login</a>
+                            <a href="{{ url_for('bp-auth.register') }}">Register</a>
+                        {% endif %}
+                    </nav>
+                    {% if current_user.is_authenticated %}
+                    <div id="user-info">
+                        Signed in as <strong>{{ current_user.user_name }}</strong>
+                        ({{ current_user.user_type | capitalize }})
+                    </div>
+                {% endif %}
+                </div>
+                             
+                  
+
+                <section id="flash">
+                    <p>Project w24-Client-Professional Service Scheduling...</p>
+                    {% block current_user %}
+    
+                    {% endblock current_user %}
+                    <!-- <p>Flash Messages Here...</p> -->
+                    {% with messages = get_flashed_messages(with_categories=True) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="flash-container {{ category }}">
+                                    <span class="flash-message">{{ message }}</span>
+                                    <button class="flash-close" onclick="this.parentElement.style.display='none';">&times;</button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                </section>
+                
+            </section>
+            
+        </header>
+
+        <main>
+            <section id="col_wrap">
+
+                <section id="left_col" class="columns">
+                    {% block left_col %}
+    
+                    {% endblock left_col %}
+                </section>
+    
+                <section id="right_col" class="columns">
+                    {% block right_col %}
+                    
+                    {% endblock right_col %}
+                </section>
+
+            </section>
+            
+
+            <footer>
+                <h3>Team 4</h3>
+                <h3>Section 1</h3>
+                <h3>Winter 2025</h3>
+
+            </footer>
+        </main>
+
+        <script>
+            window.onload = function() {
+                const flashMessages = document.querySelectorAll(".messages");
+                flashMessages.forEach(function(msg) {
+                    setTimeout(() => {
+                        msg.style.transition = "opacity 1s ease";
+                        msg.style.opacity = "0";
+                        setTimeout(() => {
+                            msg.style.display = "none";
+                        }, 1000);
+                    }, 3000);
+                });
+            };
+        
+            document.addEventListener("DOMContentLoaded", function() {
+                // --- Back Button Fade-Out ---
+                const backButtons = document.querySelectorAll('.btn-back');
+                backButtons.forEach(function(button) {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.body.classList.add('fade-out');
+                        setTimeout(() => {
+                            window.location.href = this.href;
+                        }, 500);
+                    });
+                });
+            });
+        </script>
+        
+
+    </body>
+
+</html>

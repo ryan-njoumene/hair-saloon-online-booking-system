@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">{{ context["main_heading"] }}</h1>
+<p>User details and information</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">User Information</h2>
+
+    <!-- Profile Picture -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="{{ url_for('static', filename='uploads/' ~ user[8]) }}" alt="Profile Picture" width="150" height="150" style="border-radius: 50%; object-fit: cover; box-shadow: 0px 4px 8px rgba(0,0,0,0.1);">
+    </div>
+
+    <ul style="text-align: left; list-style-type: none; padding-left: 0;">
+        <li><strong>ID:</strong> {{ user[0] }}</li>
+        <li><strong>Username:</strong> {{ user[4] }}</li>
+        <li><strong>Name:</strong> {{ user[5] }} {{ user[6] }}</li>
+        <li><strong>Email:</strong> {{ user[7] }}</li>
+        <li><strong>User Type:</strong> {{ user[2] | capitalize }}</li>
+        <li><strong>Phone:</strong> {{ user[10] }}</li>
+        <li><strong>Address:</strong> {{ user[11] }}</li>
+        <li><strong>Age:</strong> {{ user[12] }}</li>
+        <li><strong>Warnings:</strong> {{ warning_count }}</li>
+
+    </ul>
+
+    <!-- Buttons Area -->
+    <div style="margin-top: 30px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+
+        <a href="{{ url_for('bp-admin.manage_users', type=context.return_type) }}" class="admin-action">Back to Users</a>
+
+        <a href="{{ url_for('bp-admin.edit_user', user_id=user[0]) }}" class="admin-action">Edit User</a>
+
+        <a href="{{ url_for('bp-admin.warn_user', user_id=user[0]) }}" class="admin-action">⚠️ Warn User</a>
+
+        <form method="POST" action="{{ url_for('bp-admin.toggle_user_active', user_id=user[0], return_type=context.return_type) }}" onsubmit="return confirm('Are you sure you want to toggle this user\'s activation status?');" style="display: inline;">
+            {% if user[1] %}
+                <button type="submit" class="admin-action admin-delete">Deactivate Account</button>
+            {% else %}
+                <button type="submit" class="admin-action btn-reactivate">Reactivate Account</button>
+            {% endif %}
+        </form>
+
+        <form method="POST" action="{{ url_for('bp-admin.delete_user', user_id=user[0]) }}" onsubmit="return confirm('Are you sure you want to delete this user?');" style="margin: 0;">
+            <button type="submit" class="admin-action admin-delete">Delete User</button>
+        </form>
+
+    </div>
+</div>
+{% endblock right_col %}

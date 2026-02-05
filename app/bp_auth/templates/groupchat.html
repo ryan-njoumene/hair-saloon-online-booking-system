@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<div style="text-align: left; margin-bottom: 15px;">
+
+    <a href="{{ url_for('bp-auth.manage_groupchat') }}" class="btn-back">← Back to Manage Group Chat</a>
+</div>
+<h1 id="main_heading">{{ context["main_heading"] }} Group Chat</h1>
+<p>Current Messages</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">
+
+    <div class="form-card" style="flex: 2;">
+        <!-- Messages Table -->
+        <h2 class="section-title">Messages</h2>
+
+        <!-- FILTER BUTTONS -->
+        <div style="margin: 15px 0; text-align: center;">
+            <a href="" class="btn-filter">All</a>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr style="background-color: #2C3E50; color: white;">
+                    <th style="padding: 10px;">Sender</th>
+                    <th style="padding: 10px;">Message</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for m in messages %}
+                <tr style="text-align: center;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ m['sender_username'] }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ m['contents'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            
+        </table>
+
+        <!-- Send Message Form -->
+        <h2 class="section-title">New Message</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+    
+            <div class="floating-label">
+                {{ form.members(class="form-control") }}
+                {{ form.members.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.contents(class="form-control") }}
+                {{ form.contents.label }}
+            </div>
+
+            {{ form.submit(class="btn-success") }}
+        </form>
+    </div>
+</div>
+ 
+{% endblock right_col %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<div class="nav-back">
+    <a href="{{ url_for('bp-main.home') }}" class="btn-back">← Back to Home</a>
+</div>
+<h1 id="main_heading">My Reports</h1>
+<p>These are your submitted reports.</p>
+{% endblock %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Reports</h2>
+
+    {% if reports_list %}
+        {% for report in reports_list %}
+        <div class="info-card appointment-card {% if report.flagged_by_professional %}flagged-card{% endif %}">
+            <div class="appointment-header">
+                <h3>Report for Appointment #{{ report.appointment_id }}</h3>
+                {% if report.flagged_by_professional %}
+                    <span class="status-badge flagged">FLAGGED</span>
+                {% endif %}
+                {% set badge_label = "UNANSWERED" if not report.feedback_professional else "ANSWERED" %}
+                <span class="status-badge {{ badge_label | lower }}">{{ badge_label }}</span>
+            </div>
+
+            <ul class="info-list">
+                <li><strong>Client Feedback:</strong> {{ report.feedback_client if report.feedback_client else "—" }}</li>
+                <li><strong>Professional Feedback:</strong>
+                    {% if report.feedback_professional %}
+                        {{ report.feedback_professional }}
+                    {% elif current_user.user_type == 'professional' %}
+                        <em>No response yet.</em>
+                        <form method="GET" action="{{ url_for('bp-report.respond_to_report', report_id=report.report_id) }}">
+                            <input type="hidden" name="report_id" value="{{ report.report_id }}">
+                            <button type="submit" class="btn-glow" style="background-color: #007bff;">Respond</button>
+                        </form>
+                    {% else %}
+                        <em>Not yet responded.</em>
+                    {% endif %}
+                </li>
+            </ul>
+
+            <div class="btn-container">
+                <a href="{{ url_for('bp-report.view_report', report_id=report.report_id, return_to='my_reports') }}"
+                    class="btn-glow">
+                    <i class="fa fa-eye"></i> View Info
+                </a>
+            </div>            
+        </div>
+    {% endfor %}
+    <div class="pagination-container">
+        {% if current_page > 1 %}
+            <a class="pagination-btn" href="?page={{ current_page - 1 }}">Previous</a>
+        {% endif %}
+        {% for page in range(1, total_pages + 1) %}
+            <a class="pagination-btn {% if page == current_page %}active{% endif %}" href="?page={{ page }}">{{ page }}</a>
+        {% endfor %}
+        {% if current_page < total_pages %}
+            <a class="pagination-btn" href="?page={{ current_page + 1 }}">Next</a>
+        {% endif %}
+    </div>
+
+    {% else %}
+        <p>No reports found.</p>
+    {% endif %}
+</div>
+{% endblock %}

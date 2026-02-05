@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">Edit User</h1>
+<p>Edit the details of the user below.</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div class="form-card">
+    <h2 class="section-title">Edit User Information</h2>
+
+    <form method="POST" action="{{ url_for('bp-admin.edit_user', user_id=user.id) }}">
+        {{ form.hidden_tag() }}
+
+        <div class="floating-label">
+            {{ form.user_type(id="user_type", onchange="toggleFields()", placeholder=" ") }}
+            {{ form.user_type.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.user_name(placeholder=" ") }}
+            {{ form.user_name.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.fname(placeholder=" ") }}
+            {{ form.fname.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.lname(placeholder=" ") }}
+            {{ form.lname.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.email(placeholder=" ") }}
+            {{ form.email.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.phone_number(placeholder=" ") }}
+            {{ form.phone_number.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.address(placeholder=" ") }}
+            {{ form.address.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.age(placeholder=" ") }}
+            {{ form.age.label }}
+        </div>
+
+        <div id="professional-fields" style="display: none;">
+            <div class="floating-label">
+                {{ form.specialty(placeholder=" ") }}
+                {{ form.specialty.label }}
+            </div>
+            <div class="floating-label">
+                {{ form.pay_rate(placeholder=" ") }}
+                {{ form.pay_rate.label }}
+            </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn-success">Update User</button>
+        </div>
+        
+        <div style="margin-top: 20px; display: flex; gap: 20px; justify-content: center;">
+            <a href="{{ url_for('bp-admin.view_user', user_id=user.id) }}" class="admin-action">Back to User Info</a>
+        </div>        
+
+        
+    </form>
+</div>
+
+<script>
+    function toggleFields() {
+        var userType = document.getElementById("user_type").value.toLowerCase();
+        var professionalFields = document.getElementById("professional-fields");
+        if (userType === "professional") {
+            professionalFields.style.display = "flex";
+            professionalFields.style.flexDirection = "column";
+            professionalFields.style.alignItems = "center";
+        } else {
+            professionalFields.style.display = "none";
+        }
+    }
+    
+    // Ensure toggle happens *after* DOM content is fully ready
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleFields();
+    });
+    </script>
+    
+{% endblock right_col %}

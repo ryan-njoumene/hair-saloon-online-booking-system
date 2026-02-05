@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<h1 id="main_heading">Add New Admin</h1>
+{% endblock %}
+
+{% block right_col %}
+<div class="form-card">
+
+    <!-- Back Button -->
+    <div style="text-align: left; margin-bottom: 15px;">
+        <a href="{{ url_for('bp-admin.dashboard') }}" class="btn-back">← Back to Dashboard</a>
+    </div>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="floating-label">
+            {{ form.user_name(placeholder=" ") }}
+            {{ form.user_name.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.password(placeholder=" ") }}
+            {{ form.password.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.confirm_password(placeholder=" ") }}
+            {{ form.confirm_password.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.fname(placeholder=" ") }}
+            {{ form.fname.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.lname(placeholder=" ") }}
+            {{ form.lname.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.email(placeholder=" ") }}
+            {{ form.email.label }}
+        </div>
+
+        <div class="floating-label">
+            {{ form.user_type() }}
+            {{ form.user_type.label }}
+        </div>
+
+        <div>
+            {{ form.submit(class="btn-success") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

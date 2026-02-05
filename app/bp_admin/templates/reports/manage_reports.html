@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block left_col %}
+<div style="text-align: left; margin-bottom: 15px;">
+    <a href="{{ url_for('bp-admin.dashboard') }}" class="btn-back">← Back to Dashboard</a>
+</div>
+<h1 id="main_heading">{{ context["main_heading"] }}</h1>
+<p>Manage Reports</p>
+{% endblock left_col %}
+
+{% block right_col %}
+<div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">
+    <!-- Appointments Table -->
+    <div class="form-card" style="flex: 2;">
+        <h2 class="section-title">Reports</h2>
+
+        <!-- FILTER BUTTONS -->
+        <div style="margin-bottom: 20px; text-align: center;">
+            <a href="{{ url_for('bp-admin.manage_reports', status='open') }}" class="btn-filter {% if filter_status == 'open' %}active{% endif %}">Open</a>
+            <a href="{{ url_for('bp-admin.manage_reports', status='closed') }}" class="btn-filter {% if filter_status == 'closed' %}active{% endif %}">Closed</a>
+            <a href="{{ url_for('bp-admin.manage_reports', status='flagged') }}" class="btn-filter {% if filter_status == 'flagged' %}active{% endif %}">Flagged</a>
+            <a href="{{ url_for('bp-admin.manage_reports', status='all') }}" class="btn-filter {% if filter_status == 'all' %}active{% endif %}">All</a>
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr style="background-color: #2C3E50; color: white;">
+                    <th style="padding: 10px;">Date</th>
+                    <th style="padding: 10px;">Client</th>
+                    <th style="padding: 10px;">Professional</th>
+                    <th style="padding: 10px;">Status</th>
+                    <th style="padding: 10px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr class="{% if report.flagged_by_professional %}flagged-row{% endif %}" style="text-align: center; border-bottom: 1px solid #ddd;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        {{ report.date | datetimeformat('%Y-%m-%d') }}
+                    </td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ report.client_name }}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ report.professional_name }}</td>
+
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        {{ report.status }}
+                        {% if report.flagged_by_professional %}
+                            <span style="color: red; font-weight: bold; margin-left: 10px;">⚠️ Flagged</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        <a href="{{ url_for('bp-admin.view_report', report_id=report.id) }}"
+                        class="btn-success" style="padding: 6px 12px; color: white; text-decoration: none;">
+                            View Info
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Report Form -->
+    <div class="form-card" style="flex: 1;">
+        <h2 class="section-title">Create New Report</h2>
+        <form method="POST" action="{{ url_for('bp-admin.manage_reports') }}">
+            {{ form.hidden_tag() }}
+    
+            <div class="floating-label">
+                {{ form.appointment_id(class="form-control") }}
+                {{ form.appointment_id.label }}
+            </div>
+    
+            <div class="floating-label">
+                {{ form.status(class="form-control") }}
+                {{ form.status.label }}
+            </div>
+    
+            <div class="floating-label">
+                {{ form.feedback_client(class="form-control", id="slot") }}
+                {{ form.feedback_client.label }}
+            </div>
+
+            <div class="floating-label">
+                {{ form.feedback_professional(class="form-control") }}
+                {{ form.feedback_professional.label }}
+            </div>                      
+
+            {{ form.submit(class="btn-success") }}
+        </form>
+    </div>
+
+</div>
+{% endblock right_col %}
